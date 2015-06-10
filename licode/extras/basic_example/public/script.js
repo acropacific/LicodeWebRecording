@@ -1,8 +1,8 @@
 var serverUrl = "/";
 var localStream, room, recording, recordingId, dataStream,play;
 var isPublished = false;
-//var playRecording = [];
 var streamPlayedOne,streamPlayedTwo;
+
 function getParameterByName(name) {
   name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
   var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -11,64 +11,66 @@ function getParameterByName(name) {
 }
 
 function startRecording() {
-
-   
   if (room !== undefined){
     if (!recording){
     dataStream.sendData({text:"recordMe", stream:localStream.getID()});
 	recording = true;      
    // console.log("start recording");
-     document.getElementById("mark").innerHTML = "Start Recording!"; 
+     document.getElementById("recordButton").innerHTML = "STOP"; 
     } else {
     dataStream.sendData({text:"stopRecording", stream:localStream.getID()});
       recording = false;
-     document.getElementById("mark").innerHTML = "Recording Stoped!"; 
+     document.getElementById("recordButton").innerHTML = "START"; 
    // console.log("stop recording");
     }
-  }
- 
+  } 
 };
 
 function playRecording(recordingID){
 //	console.log("play recording");
-	console.log("recordingID!!",recordingID);
+//	console.log("recordingID!!",recordingID);
 	document.getElementById("playpause").innerHTML = "PLAY RECORDING" + recordingID;
 	dataStream.sendData({text:"playRecording",stream:recordingID});
-
 };
 
 function removeRecording(recordingID){
-	document.getElementById("playpause").innerHTML = "STOP RECORDING" + recordingID;
-	dataStream.sendData({text:"removeRecording",stream:recordingID});
+  document.getElementById("playpause").innerHTML = "" ;
+  dataStream.sendData({text:"removeRecording",stream:recordingID});
 }
+ /*might be useful
+function allUsers(){
+   var req = new XMLHttpRequest();
+    var url = serverUrl + 'createToken/';
+  //  var body = {username: userName, role: role};
 
-/*function togglePlayPause() { 
-    var playpause = document.getElementById("playpause"); 
-    if (audio.paused || audio.ended) { 
-        playpause.title = "pause"; 
-        playpause.innerHTML = "pause"; 
-        audio.play(); 
-    } else { 
-        playpause.title = "play"; 
-        playpause.innerHTML = "play"; 
-        audio.pause(); 
-    } 
+    req.open('GET', true);
+    req.setRequestHeader('Content-Type', 'application/json');
+  //  req.send(JSON.stringify(body));
+
 }*/
 
+
+
 window.onload = function () {
+
+  document.getElementById('load').addEventListener('click',function(){
+    var right = event.button;
+console.log("left or right",right);
+dataStream.sendData({text:"loadRecordings",stream:localStream.getID()});
+  },false);
+
   recording = false;
   play = false;
   var screen = getParameterByName("screen");
   var config = {audio: true, video: false, data: true, screen: screen, videoSize: [640, 480, 640, 480],attributes:{type:'localStream'}};
-  // If we want screen sharing we have to put our Chrome extension id. The default one only works in our Lynckia test servers.
-  // If we are not using chrome, the creation of the stream will fail regardless.
-  if (screen){
-    config.extensionId = "okeephmleflklcdebijnponpabbmmgeo";
+if (screen){
+   config.extensionId = "okeephmleflklcdebijnponpabbmmgeo";
   }
   dataStream = Erizo.Stream({audio:false, video:false, data:true, attributes:{type:'clientStream'}}); 
   localStream = Erizo.Stream(config);
-  var createToken = function(userName, role, callback) {
 
+  
+  var createToken = function(userName, role, callback) {
     var req = new XMLHttpRequest();
     var url = serverUrl + 'createToken/';
     var body = {username: userName, role: role};
@@ -86,30 +88,26 @@ window.onload = function () {
 
   createToken("user", "presenter", function (response) {
     var token = response;
-    console.log(token);
     room = Erizo.Room({token: token});
 
-      localStream.addEventListener("access-accepted", function () {
+    localStream.addEventListener("access-accepted", function () {
+     
       var subscribeToStreams = function (streams) {
         for (var index in streams) {
           var stream = streams[index];
-	if (localStream.getID() !== stream.getID()) {
-         if(stream.getAttributes().type =='recording'){
-		if(stream.getID() == streamPlayedOne.getID())
-	   	 room.subscribe(stream);
-		}
-	else
-	   	 room.subscribe(stream);
-		
-	}
-        }
-      };
+          if (localStream.getID() !== stream.getID() &&dataStream.getID() !== stream.getID()) {
+       //     if(stream.getAttributes().type =='recording'){
+          //    if(stream.getID() == streamPlayedOne.getID())
+             // room.subscribe(stream);
+            //}
+            if(stream.getAttributes().type !=='recording'||stream.getID() == streamPlayedOne.getID())
+              room.subscribe(stream);
+         }
+       }
+     };
 
 	
-      var loadRecordings = function(){
-	dataStream.sendData({text:"loadRecordings"});
-	console.log("loadRecordings");
-	}
+
 
 
       room.addEventListener("room-connected", function (roomEvent) {
@@ -137,7 +135,7 @@ window.onload = function () {
 
 
 	stream.addEventListener("stream-data", function(evt){
-		console.log("recor",evt.msg.text);
+		console.log("from server side",evt.msg.text);
 		if(evt.msg.text == "PLAY"){
 		streamPlayedOne = Erizo.Stream({audio:true, video:false, recording:evt.msg.stream, attributes:{type:'recording'}});
 		room.publish(streamPlayedOne);
@@ -145,26 +143,30 @@ window.onload = function () {
 		}
 		
 		if(evt.msg.text == "recordingList"){
-		console.log("recordingList print !!!");
-		for(var i = 1; i <= evt.msg.stream; i++){
-			var txt = document.creamentElement("p");
-			txt.innerHtml ="recording"+i;
+      if(evt.msg.stream == localStream.getID()){
+		
+      
+		for(var i = 1; i <= evt.msg.len; i++){
+                    console.log("test recordingList",i);
+			var txt = document.createElement("p");
+			txt.innerHTML ="recording "+i;
 			document.getElementById("recordingList").appendChild(txt);
-	                
+	           // console.log("test recordingList 2",txt.innerHTML.substring(10));
 			txt.onclick = function(){
                         if(!play){
-                        playRecording(evt.msg.stream);
-                        console.log("playRecording",evt.msg.stream);
+                        playRecording(txt.innerHTML.substring(10));
+                        console.log("playRecording",i);
                         play = true;
                         }
                         else{
                         play = false;
-                        removeRecording(evt.msg.stream);
-                        console.log("removeRecording",evt.msg.stream);
+                        removeRecording(txt.innerHTML.substring(10));
+                        console.log("removeRecording",i);
                         }
                 	};
 		}
 		}
+  }
 
 		if(evt.msg.text == "recordingID"){
 		 console.log("recordingID !!!");
@@ -179,16 +181,17 @@ window.onload = function () {
 			}
 			else{
 			play = false;
-			removeRecording(evt.msg.stream);		
+			removeRecording(evt.msg.stream);
+                   		
 			console.log("removeRecording",evt.msg.stream);
                         }
 		};
 		}
 
 
-		if(evt.msg.text == "STOP"){
+	   if(evt.msg.text == "STOP"){
 	//	room.unsubscribe(evt.msg.stream);
-		console.log("STOP TEST!!!",streamPlayedOne);
+	       console.log("STOP TEST!!!",streamPlayedOne);
 	//	console.log("StreamPlayed showing!!!",streamPlayedTwo.showing);
 //		console.log("STREAMplayed ID!!!",streamPlayedTwo.getID());
 		console.log("room remoteStreams!!!",room.remoteStreams);
@@ -223,8 +226,9 @@ window.onload = function () {
         var streams = [];
         streams.push(streamEvent.stream);
         subscribeToStreams(streams);
-	if(streamEvent.stream.getAttributes().type == 'clientStream')
-	loadRecordings();
+        console.log(streamEvent.stream.getID(),"stream-added");
+        console.log(streamEvent.stream.getAttributes().type ,"type");
+
       });
 
 

@@ -6,12 +6,7 @@
     <script type="text/javascript" src="script.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js">
 </script>
-	 <script>
-     //   $(document).ready(function(){
-       //  $("#recordButton").click(startRecording()); 
-       //  $("#playButton").click(playRecording()); 
-       // });
-        </script>
+
 
 <style>
 #header {
@@ -60,23 +55,25 @@
 </div>
 
 <div id="nav">
+<button id = "load",style = "color:blue">loadRocording</button>
+
 <ol id="recordingList">
 
+   
  <p style = "color:green;font-family:verdana;font-size:120%"><i><b>RecordingList</b></i></p>
 <p id ="playpause"></p>
 </ol>
 </div>
 
 <div id="section">
- <button id="recordButton", onclick="startRecording()",style = "color:green">toggleRecording</button>
- <p id ="mark">null</p>
-<div id="myVideo" style="width:320px; height: 240px;">
+ <button id="recordButton", onclick="startRecording()",style = "color:green">START</button>
+
+ <div id="myVideo" style="width:320px; height: 240px;">
  </div>
 </div>
-<div id="recording">
-<audio id="video" controls>  
-</audio>
-</div>
+
+
+
 <div id="footer">
 Copyright � webInterPhone.com
 </div>
