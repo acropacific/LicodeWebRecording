@@ -4,6 +4,7 @@ var privateRoom;
 var priFlag; //to mark playing recording publicly or privately
 var isPublished = false;
 var streamPlayedOne,streamPlayedTwo;
+var button_1,button_2;
 
 function getParameterByName(name) {
   name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -166,34 +167,37 @@ window.onload = function () {
 			var txt = document.createElement("p");
 			txt.innerHTML ="recording "+i;
 			document.getElementById("recordingList").appendChild(txt);
-                    var button_1 = document.createElement("button");
-                    var button_2 = document.createElement("button");
-
+                    button_1 = document.createElement("input");
+                    button_2 = document.createElement("input");
+                    button_1.type = "button";
+                    button_1.value = i;
+                    button_2.type = "button";button_2.value = i;
                     button_1.onclick = function(){
                         priFlag = false;
                          if(!play){
-                                      playRecording(txt.innerHTML.substring(10));
-                                      console.log("playRecording",txt.innerHTML.substring(10));
+                                      console.log(button_1);
+                                      console.log("playRecording list! ",button_1.value);
+                                      playRecording(button_1.value);
                                       play = true;
                                       }
                                       else{
                                       play = false;
-                                      removeRecording(txt.innerHTML.substring(10));
-                                      console.log("removeRecording",txt.innerHTML.substring(10));
+                                      removeRecording(button_1.value);
+                                      console.log("removeRecording list! ",button_1.value);
                                       }
                     }
 
 			button_2.onclick = function(){
                         priFlag = true;
                         if(!play){
-                        playRecording(txt.innerHTML.substring(10));
-                        console.log("playRecording",txt.innerHTML.substring(10));
+                        playRecording(b_2_txt);
+                        console.log("playRecording List",b_2_txt);
                         play = true;
                         }
                         else{
                         play = false;
-                        removeRecording(txt.innerHTML.substring(10));
-                        console.log("removeRecording",txt.innerHTML.substring(10));
+                        removeRecording(b_2_txt);
+                        console.log("removeRecording List",b_2_txt);
                         }
                 	};
                   document.getElementById("recordingList").appendChild(button_1);
