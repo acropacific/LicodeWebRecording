@@ -167,23 +167,24 @@ window.onload = function () {
 			var txt = document.createElement("p");
 			txt.innerHTML ="recording "+i;
 			document.getElementById("recordingList").appendChild(txt);
-                    button_1 = document.createElement("input");
-                    button_2 = document.createElement("input");
-                    button_1.type = "button";
-                    button_1.value = i;
-                    button_2.type = "button";button_2.value = i;
+                    button_1 = document.createElement("p");
+                    button_2 = document.createElement("p");
+                 //   button_1.type = "button";
+                    button_1.innerHTML = i;
+                 //   button_2.type = "button";
+                    button_2.innerHTML = i;
                     button_1.onclick = function(){
                         priFlag = false;
                          if(!play){
                                       console.log(button_1);
-                                      console.log("playRecording list! ",button_1.value);
-                                      playRecording(button_1.value);
+                                      console.log("playRecording list! ",button_1.innerHTML);
+                                      playRecording(button_1.innerHTML);
                                       play = true;
                                       }
                                       else{
                                       play = false;
-                                      removeRecording(button_1.value);
-                                      console.log("removeRecording list! ",button_1.value);
+                                      removeRecording(button_1.innerHTML);
+                                      console.log("removeRecording list! ",button_1.innerHTML);
                                       }
                     }
 
