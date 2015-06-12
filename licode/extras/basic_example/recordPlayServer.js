@@ -31,6 +31,8 @@ var theStreams = [];
 var recordingList = [];
 var recordingID;
 var streamPlayed;
+var username;
+var role;
 var startErizoFc = function (token){
     var room;
     room = Erizo.Room({token: token});
@@ -67,7 +69,7 @@ var startErizoFc = function (token){
                 }
 
                 if (evt.msg.text=="playRecording") {
-                    localStream.sendData({text:"PLAY", stream:recordingList[Number(evt.msg.stream)-1]});   
+                    localStream.sendData({text:"PLAY", stream:recordingList[Number(evt.msg.stream)-1],user:evt.msg.user});   
                 }
 	  
 	  if(evt.msg.text=="removeRecording"){
@@ -109,6 +111,11 @@ N.API.getRooms(function(roomlist) {
         if (rooms[room].name === 'basicExampleRoom'){
             myRoom = rooms[room]._id;
         }
+       /* if(rooms[room].name === 'privateRoom'){
+               N.API.deleteRoom(rooms[room]._id, function(result) {
+                console.log('Result: ', result);
+            });
+        }*/
     }
     if (!myRoom) {
 
@@ -148,14 +155,35 @@ app.get('/getUsers/:room', function(req, res) {
 
 app.post('/createToken/', function(req, res) {
     "use strict";
-    var room = myRoom,
-    username = req.body.username,
+     var room;
+     console.log("!!!!!",req.body.userName);
+    username = req.body.userName;
+
     role = req.body.role;
+    if(username =="recordingPlayer"){
+           N.API.createRoom('privateRoom', function(roomID) {
+            room = roomID._id;
+            console.log('Created room ', room);
+            N.API.createToken(room, username, role, function(token) {
+            res.send(token);
+    });
+        });
+    }
+    else{
+    room = myRoom;
     N.API.createToken(room, username, role, function(token) {
         console.log(token);
         res.send(token);
     });
+    }
 });
+
+app.post('/deleteRoom',function(req,res){
+    var roomId = req.body.roomId;
+    N.API.deleteRoom(roomId, function(result) {
+  console.log('Result: ', result);
+});
+})
 
 app.use(function(req, res, next) {
     "use strict";
