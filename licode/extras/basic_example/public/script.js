@@ -103,11 +103,12 @@ window.onload = function () {
 
        room.addEventListener("stream-subscribed", function(streamEvent) {
         var stream = streamEvent.stream;
-        var div = document.createElement('div');
-        div.setAttribute("style", "width: 320px; height: 240px;");
-        div.setAttribute("id", "test" + stream.getID());
+        
 
         if(stream.hasAudio()){	
+          var div = document.createElement('div');
+        div.setAttribute("style", "width: 320px; height: 180px;");
+        div.setAttribute("id", "test" + stream.getID());
         document.getElementById("section").appendChild(div);
         stream.show("test"+stream.getID());
 	}
@@ -138,7 +139,7 @@ window.onload = function () {
                          privateRoom.addEventListener("stream-subscribed", function(streamEvent) {
                           var stream = streamEvent.stream;
                           var div = document.createElement('div');
-                          div.setAttribute("style", "width: 320px; height: 240px;");
+                          div.setAttribute("style", "width: 320px; height: 180px;");
                           div.setAttribute("id", "test" + stream.getID());
                           document.getElementById("section").appendChild(div);
                           stream.show("test"+stream.getID());
@@ -167,8 +168,8 @@ window.onload = function () {
 			var txt = document.createElement("p");
 			txt.innerHTML ="recording "+i;
 			document.getElementById("recordingList").appendChild(txt);
-                    button_1 = document.createElement("p");
-                    button_2 = document.createElement("p");
+                    button_1 = document.createElement("button");
+                    button_2 = document.createElement("button");
                  //   button_1.type = "button";
                     button_1.innerHTML = i;
                  //   button_2.type = "button";
@@ -176,29 +177,29 @@ window.onload = function () {
                     button_1.onclick = function(){
                         priFlag = false;
                          if(!play){
-                                      console.log(button_1);
-                                      console.log("playRecording list! ",button_1.innerHTML);
-                                      playRecording(button_1.innerHTML);
+                                      console.log(this);
+                                      console.log("playRecording list! ",this.innerHTML);
+                                      playRecording(this.innerHTML);
                                       play = true;
                                       }
                                       else{
                                       play = false;
-                                      removeRecording(button_1.innerHTML);
-                                      console.log("removeRecording list! ",button_1.innerHTML);
+                                      removeRecording(this.innerHTML);
+                                      console.log("removeRecording list! ",this.innerHTML);
                                       }
                     }
 
 			button_2.onclick = function(){
                         priFlag = true;
                         if(!play){
-                        playRecording(b_2_txt);
-                        console.log("playRecording List",b_2_txt);
+                        playRecording(this.innerHTML);
+                        console.log("playRecording List",this.innerHTML);
                         play = true;
                         }
                         else{
                         play = false;
-                        removeRecording(b_2_txt);
-                        console.log("removeRecording List",b_2_txt);
+                        removeRecording(this.innerHTML);
+                        console.log("removeRecording List",this.innerHTML);
                         }
                 	};
                   document.getElementById("recordingList").appendChild(button_1);
@@ -214,6 +215,8 @@ window.onload = function () {
                 document.getElementById("recordingList").appendChild(txt);
                 var button_1 = document.createElement("button");
                 var button_2 = document.createElement("button");
+                button_1.innerHTML = evt.msg.stream;
+                button_2.innerHTML = evt.msg.stream;
                   button_1.onclick = function(){
                     priFlag = false;
   			if(!play){
