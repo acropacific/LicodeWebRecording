@@ -69,7 +69,7 @@ var startErizoFc = function (token){
                 }
 
                 if (evt.msg.text=="playRecording") {
-                    localStream.sendData({text:"PLAY", stream:recordingList[Number(evt.msg.stream)-1],user:evt.msg.user});   
+                    localStream.sendData({text:"PLAY", stream:recordingList[Number(evt.msg.stream)-1],user:evt.msg.user,playId:evt.msg.stream});   
                 }
 	  
 	  if(evt.msg.text=="removeRecording"){

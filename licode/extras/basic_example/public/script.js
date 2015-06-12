@@ -4,7 +4,7 @@ var privateRoom;
 var priFlag; //to mark playing recording publicly or privately
 var isPublished = false;
 var streamPlayedOne,streamPlayedTwo;
-var button_1,button_2;
+var playId;// to mark the recordingID that being played
 
 function getParameterByName(name) {
   name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -29,12 +29,11 @@ function startRecording() {
 };
 
 function playRecording(recordingID){
-  document.getElementById("playpause").innerHTML = "PLAY RECORDING" + recordingID;
   dataStream.sendData({text:"playRecording",stream:recordingID,user:localStream.getID()});
 };
 
 function removeRecording(recordingID){
-  document.getElementById("playpause").innerHTML = "" ;
+  
   dataStream.sendData({text:"removeRecording",stream:recordingID});
 };
 
@@ -107,7 +106,7 @@ window.onload = function () {
 
         if(stream.hasAudio()){	
           var div = document.createElement('div');
-        div.setAttribute("style", "width: 320px; height: 180px;");
+        div.setAttribute("style", "width: 320px; height: 200px;");
         div.setAttribute("id", "test" + stream.getID());
         document.getElementById("section").appendChild(div);
         stream.show("test"+stream.getID());
@@ -116,7 +115,9 @@ window.onload = function () {
     stream.addEventListener("stream-data", function(evt){
       console.log("from server side",evt.msg.text);
 
-		if(evt.msg.text == "PLAY"&&evt.msg.user == localStream.getID()){
+      if(evt.msg.text == "PLAY"){
+        playId = evt.msg.playId;
+		if(evt.msg.user == localStream.getID()){
 
 		streamPlayedOne = Erizo.Stream({audio:true, video:false, recording:evt.msg.stream, attributes:{type:'recording'}});
 	//	room.publish(streamPlayedOne);
@@ -134,12 +135,13 @@ window.onload = function () {
 
                          privateRoom.addEventListener("stream-added",function(streamEvent){
                             privateRoom.subscribe(streamEvent.stream);
+                            document.getElementById("playpause").innerHTML = "PLAY recording " + playId + " privately";
                         });
 
                          privateRoom.addEventListener("stream-subscribed", function(streamEvent) {
                           var stream = streamEvent.stream;
                           var div = document.createElement('div');
-                          div.setAttribute("style", "width: 320px; height: 180px;");
+                          div.setAttribute("style", "width: 320px; height: 200px;");
                           div.setAttribute("id", "test" + stream.getID());
                           document.getElementById("section").appendChild(div);
                           stream.show("test"+stream.getID());
@@ -152,7 +154,8 @@ window.onload = function () {
                                 console.log("privateRoom recording removed",stream.elementID);
                                 document.getElementById("section").removeChild(element);    
                               }
-                              deleteRoom(privateRoom.roomID);
+                              document.getElementById("playpause").innerHTML = "" ;
+                              //deleteRoom(privateRoom.roomID);
                             });
                        });
               }
@@ -161,7 +164,7 @@ window.onload = function () {
                 room.publish(streamPlayedOne);
               }
 		}
-
+  }
     if(evt.msg.text == "recordingList"){
       if(evt.msg.stream == localStream.getID()){
         for(var i = 1; i <= evt.msg.len; i++){
@@ -266,8 +269,9 @@ window.onload = function () {
         var streams = [];
         streams.push(streamEvent.stream);
         subscribeToStreams(streams);
-        console.log(streamEvent.stream.getID(),"stream-added");
-        console.log(streamEvent.stream.getAttributes().type ,"type");
+        if(streamEvent.stream.getAttributes().type == "recording"){
+          document.getElementById("playpause").innerHTML = "PLAY recording " + playId + " publicly";
+        }
 
       });
 
@@ -281,6 +285,8 @@ window.onload = function () {
           console.log("stream removed",stream.elementID)
           document.getElementById("section").removeChild(element);	  
         }
+        if(stream.getAttributes().type == "recording")
+          document.getElementById("playpause").innerHTML = "" ;
       });
       
 
