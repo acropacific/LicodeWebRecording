@@ -36,7 +36,10 @@ var role;
 var startErizoFc = function (token){
     var room;
     room = Erizo.Room({token: token});
-
+     console.log("create erizofc");
+     console.log("room");
+      room.connect();
+      
     room.addEventListener("room-connected", function(event) {
         console.log("Fake client Connected!");
         room.publish(localStream);
@@ -93,7 +96,7 @@ var startErizoFc = function (token){
         }
       });
 
-    room.connect();
+   
 };
 
 
@@ -172,7 +175,7 @@ app.post('/createToken/', function(req, res) {
     else{
     room = myRoom;
     N.API.createToken(room, username, role, function(token) {
-        console.log(token);
+        //console.log(token);
         res.send(token);
     });
     }
