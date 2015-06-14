@@ -29,6 +29,7 @@ var localStream = Erizo.Stream({audio:false, video:false, data: true, attributes
 var serverUrl = "http://localhost:3001/";
 var theStreams = [];
 var recordingList = [];
+var userList = {};
 var recordingID;
 var streamPlayed;
 var username;
@@ -37,7 +38,7 @@ var startErizoFc = function (token){
     var room;
     room = Erizo.Room({token: token});
      console.log("create erizofc");
-     console.log("room");
+     console.log("room 1");
       room.connect();
       
     room.addEventListener("room-connected", function(event) {
@@ -46,7 +47,7 @@ var startErizoFc = function (token){
     });
 
     room.addEventListener("stream-added", function(event) {
-        console.log('stream added', event.stream.getID());
+        console.log('stream has been added', event.stream.getID());
         theStreams[event.stream.getID()]=event.stream;
         if(!event.stream.hasAudio()&&event.stream.getID() !== localStream.getID())
                 room.subscribe(event.stream,{audio: false, video: false, data:true});
@@ -83,16 +84,28 @@ var startErizoFc = function (token){
                localStream.sendData({text:"recordingList",len:recordingList.length,stream:evt.msg.stream});
                console.log("recordingList !!!",recordingList.length);
 	  }
+console.log("userName",userList);
+      if(evt.msg.text=="userName"){
+               userList[evt.msg.streamId] = evt.msg.userName;
+               localStream.sendData({text:"addNewUser",userName:userList});
+     console.log("userName",userList);          
+      }
+
 
 	});
     });
 
     room.addEventListener("stream-removed", function (streamEvent) {
         var stream = streamEvent.stream;
-        if (stream.elementID !== undefined) {
+       
+        if (stream.getAttributes().type == "localStream" ) {
      //     var element = document.getElementById(stream.elementID);
        //   document.body.removeChild(element);
-	console.log(stream.elementID,' has been removed');
+	 console.log(stream.getID(), "has been removed");
+     userList[stream.getID()] = " ";
+     //delete userList.stream.getID();
+            localStream.sendData({text:"addNewUser",userName:userList});
+               console.log("userName",userList);
         }
       });
 

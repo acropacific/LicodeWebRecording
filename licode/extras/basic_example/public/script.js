@@ -5,6 +5,7 @@ var priFlag; //to mark playing recording publicly or privately
 var isPublished = false;
 var streamPlayedOne,streamPlayedTwo;
 var playId;// to mark the recordingID that being played
+ var person ;// to refer to userName
 
 function getParameterByName(name) {
   name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -77,12 +78,15 @@ window.onload = function () {
   dataStream = Erizo.Stream({audio:false, video:false, data:true, attributes:{type:'clientStream'}}); 
   localStream = Erizo.Stream(config);
 
+ 
+
   createToken("user", "presenter", function (response) {
     var token = response;
     room = Erizo.Room({token: token});
 
     localStream.addEventListener("access-accepted", function () {
      
+
       var subscribeToStreams = function (streams) {
         for (var index in streams) {
           var stream = streams[index];
@@ -98,6 +102,7 @@ window.onload = function () {
         room.publish(localStream, {maxVideoBW: 3000, minVideoBW:500});
         room.publish(dataStream);
         subscribeToStreams(roomEvent.streams);
+      
       });
 
        room.addEventListener("stream-subscribed", function(streamEvent) {
@@ -107,7 +112,7 @@ window.onload = function () {
         if(stream.hasAudio()){	
           var div = document.createElement('div');
         div.setAttribute("style", "width: 320px; height: 200px;");
-        div.setAttribute("id", "test" + stream.getID());
+        div.setAttribute("id", "test"+stream.getID());
         document.getElementById("section").appendChild(div);
         stream.show("test"+stream.getID());
 	}
@@ -212,8 +217,8 @@ window.onload = function () {
             }
 
 		if(evt.msg.text == "recordingID"){
-		 console.log("recordingID !!!");
-        	var txt = document.createElement("p");
+
+        	      var txt = document.createElement("p");
                 txt.innerHTML ="recording "+ evt.msg.stream;
                 document.getElementById("recordingList").appendChild(txt);
                 var button_1 = document.createElement("button");
@@ -260,6 +265,33 @@ window.onload = function () {
                      
                        
                     }
+
+
+                    if(evt.msg.text == "addNewUser"){
+                      console.log(evt.msg.userName);
+                      var userList = evt.msg.userName;
+                     
+                    for (var index in userList) {
+                        var name = userList[index];
+                     console.log(index);
+                            
+                          if (name !== " ") {
+                            var txt = document.createElement("p");
+                              txt.innerHTML = name;
+                              txt.id = index;
+                              if(document.getElementById(index) == undefined)
+                                    document.getElementById("userList").appendChild(txt);
+
+
+          }
+          else
+            if(document.getElementById(index) !== undefined)
+              document.getElementById("userList").removeChild(document.getElementById(index));
+       }
+                           
+                     
+                       
+                    }
                   });
                   }
                 });
@@ -272,7 +304,18 @@ window.onload = function () {
         if(streamEvent.stream.getAttributes().type == "recording"){
           document.getElementById("playpause").innerHTML = "PLAY recording " + playId + " publicly";
         }
-
+        if(streamEvent.stream.getID() == localStream.getID()){
+         
+            person = prompt("Please enter your name","");
+  if (person != null) {
+   /* var txt = document.createElement("p");
+    txt.innerHTML = person;
+    txt.id = localStream.getID();
+    document.getElementById("userList").appendChild(txt);*/
+    dataStream.sendData({text:"userName",userName:person,streamId:localStream.getID()});
+         console.log("userName 3",localStream.getID(),person);
+    }
+        }
       });
 
      
@@ -287,6 +330,7 @@ window.onload = function () {
         }
         if(stream.getAttributes().type == "recording")
           document.getElementById("playpause").innerHTML = "" ;
+        
       });
       
 
