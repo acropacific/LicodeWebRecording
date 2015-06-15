@@ -5,4 +5,5 @@ This is my first web application. When developing a web application, told by Ped
 Generally, if more is assigned to servers, the application is safer.
 
 Need to take care of  node modules version. Some may be too new to use. like mongojs, socket.io-client.
-when fack client cannot connect to the room, ./installNuve.sh again.`
+when fack client cannot connect to the room, ./installNuve.sh again.
+node.js v0.10.37`
